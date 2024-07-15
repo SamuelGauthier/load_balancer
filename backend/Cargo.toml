@@ -1,0 +1,11 @@
+[package]
+name = "be"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.9", features = ["derive"] }
+log = "0.4.22"
+ntex = { version = "2.0.3", features = ["tokio"] }
+simple_logger = "5.0.0"
+tokio = { version = "1.38.0", features = ["full"] }
