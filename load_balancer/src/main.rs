@@ -6,6 +6,7 @@
 use actix_web;
 use actix_web::error::InternalError;
 use actix_web::http::StatusCode;
+use clap::Parser;
 use log::{error, info, warn};
 use reqwest;
 use simple_logger;
@@ -105,7 +106,7 @@ struct LoadBalancer {
 }
 
 impl LoadBalancer {
-    pub fn new(backends: Vec<Backend>) -> Arc<TokioMutex<Self>> {
+    pub fn new(backends: Vec<Backend>, health_check_interval: u64) -> Arc<TokioMutex<Self>> {
         let load_balancer = Arc::new(TokioMutex::new(Self {
             backends,
             current_backend_index: 0,
@@ -118,7 +119,7 @@ impl LoadBalancer {
         // another thread because ntex::http::client::Client is not Sync nor Send.
         spawn(async move {
             // spawn_local(async move {
-            let mut interval = interval(Duration::from_secs(5));
+            let mut interval = interval(Duration::from_secs(health_check_interval));
             loop {
                 interval.tick().await;
                 let mut lb = load_balancer_clone.lock().await;
@@ -224,15 +225,30 @@ async fn index(
     }
 }
 
+/// Load balancer listening on port 8080 and forwarding requests to a list of backend servers
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Time interval in miliseconds between health checks
+    #[arg(short, long, default_value = "10")]
+    interval_health_check: u64,
+
+    /// List of backend servers
+    backend_adresses: Vec<String>,
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     simple_logger::SimpleLogger::new().env().init().unwrap();
 
-    let load_balancer = LoadBalancer::new(vec![
-        Backend::new("http://localhost:8081/".to_string(), 1, Health::Healthy),
-        Backend::new("http://localhost:8082/".to_string(), 1, Health::Healthy),
-        Backend::new("http://localhost:8083/".to_string(), 1, Health::Healthy),
-    ]);
+    let args = Args::parse();
+    let backends = args
+        .backend_adresses
+        .iter()
+        .map(|address| Backend::new(address.clone(), 1, Health::Healthy))
+        .collect();
+
+    let load_balancer = LoadBalancer::new(backends, args.interval_health_check);
 
     actix_web::HttpServer::new(move || {
         actix_web::App::new()
