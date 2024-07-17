@@ -3,18 +3,15 @@
  *
  * Author: Samuel Gauthier
  */
+use actix_web;
+use actix_web::error::InternalError;
+use actix_web::http::StatusCode;
 use log::{error, info, warn};
-use ntex::{
-    http::{
-        client::{error::SendRequestError, Client, ClientResponse},
-        StatusCode,
-    },
-    web,
-    web::error::InternalError,
-};
+use reqwest;
 use simple_logger;
-use std::sync::{Arc, Mutex};
-use tokio::task::spawn_local;
+use std::sync::Arc;
+use tokio::sync::Mutex as TokioMutex;
+use tokio::task::spawn;
 use tokio::time::{interval, Duration};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -43,7 +40,8 @@ impl Backend {
         let start_time = std::time::Instant::now();
 
         let health_check_address = self.address.clone() + "health";
-        let response = Client::new().get(&health_check_address).send().await;
+        let client = reqwest::Client::new();
+        let response = client.get(&health_check_address).send().await;
 
         let end_time = std::time::Instant::now();
         let elapsed_time = end_time.duration_since(start_time).as_millis();
@@ -51,7 +49,7 @@ impl Backend {
 
         match response {
             Ok(r) => {
-                if r.status() != StatusCode::OK {
+                if r.status() != reqwest::StatusCode::OK {
                     warn!(
                         "Backend server {} does not support health checks on address {}",
                         self.address, health_check_address
@@ -74,11 +72,12 @@ impl Backend {
         self.health.clone()
     }
 
-    pub async fn send_request(&mut self) -> Result<ClientResponse, SendRequestError> {
+    pub async fn send_request(&mut self) -> Result<reqwest::Response, reqwest::Error> {
         info!("Sending request to backend server {}", self.address);
         let start_time = std::time::Instant::now();
 
-        let response = Client::new().get(&self.address).send().await;
+        let client = reqwest::Client::new();
+        let response = client.get(&self.address).send().await;
 
         let end_time = std::time::Instant::now();
         let elapsed_time = end_time.duration_since(start_time).as_millis();
@@ -92,7 +91,7 @@ impl Backend {
             Err(e) => {
                 error!("Failed to send request to backend server: {:?}", e);
                 self.health = Health::Unhealthy;
-                Err(SendRequestError::from(e))
+                Err(e)
             }
         }
     }
@@ -106,8 +105,8 @@ struct LoadBalancer {
 }
 
 impl LoadBalancer {
-    pub fn new(backends: Vec<Backend>) -> Arc<Mutex<Self>> {
-        let load_balancer = Arc::new(Mutex::new(Self {
+    pub fn new(backends: Vec<Backend>) -> Arc<TokioMutex<Self>> {
+        let load_balancer = Arc::new(TokioMutex::new(Self {
             backends,
             current_backend_index: 0,
             tried_backends: 0,
@@ -117,11 +116,12 @@ impl LoadBalancer {
 
         // This runs periodically on the same thread as the load balancer. We cannot spawn it on
         // another thread because ntex::http::client::Client is not Sync nor Send.
-        spawn_local(async move {
+        spawn(async move {
+            // spawn_local(async move {
             let mut interval = interval(Duration::from_secs(5));
             loop {
                 interval.tick().await;
-                let mut lb = load_balancer_clone.lock().unwrap();
+                let mut lb = load_balancer_clone.lock().await;
                 lb.check_backends_healths().await;
             }
         });
@@ -160,33 +160,33 @@ impl LoadBalancer {
     }
 }
 
-async fn print_request_info(request: web::HttpRequest) {
+async fn print_request_info(request: actix_web::HttpRequest) {
     info!(
         "Received request from {}",
-        request.connection_info().remote().unwrap()
+        request.connection_info().peer_addr().unwrap()
     );
     info!(
         "{} {} {:?}",
         request.head().method,
         request.head().uri,
-        request.head().version
+        request.head().version,
     );
     for (key, value) in request.headers().iter() {
         info!("{}: {}", key, value.to_str().unwrap());
     }
 }
 
-#[web::get("/")]
+#[actix_web::get("/")]
 async fn index(
-    load_balancer: web::types::State<Arc<Mutex<LoadBalancer>>>,
-    request: web::HttpRequest,
-) -> Result<String, web::Error> {
+    load_balancer: actix_web::web::Data<Arc<TokioMutex<LoadBalancer>>>,
+    request: actix_web::HttpRequest,
+) -> Result<String, actix_web::Error> {
     print_request_info(request).await;
 
     let backend = load_balancer
         .get_ref()
         .lock()
-        .unwrap()
+        .await
         .next_available_backend()
         .await;
 
@@ -208,11 +208,10 @@ async fn index(
     let response = backend.send_request().await;
 
     match response {
-        Ok(mut r) => {
+        Ok(r) => {
             info!("{:?}", r);
-            let body = r.body().await?;
-            let body_string = String::from_utf8(body.to_vec()).unwrap();
-            Ok(body_string)
+            let body = r.text_with_charset("utf-8").await.unwrap();
+            Ok(body)
         }
         Err(e) => {
             error!("Failed to send request to backend server: {:?}", e);
@@ -225,7 +224,7 @@ async fn index(
     }
 }
 
-#[ntex::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     simple_logger::SimpleLogger::new().env().init().unwrap();
 
@@ -235,8 +234,12 @@ async fn main() -> std::io::Result<()> {
         Backend::new("http://localhost:8083/".to_string(), 1, Health::Healthy),
     ]);
 
-    web::HttpServer::new(move || web::App::new().state(load_balancer.clone()).service(index))
-        .bind(("127.0.0.1", 8080))?
-        .run()
-        .await
+    actix_web::HttpServer::new(move || {
+        actix_web::App::new()
+            .app_data(actix_web::web::Data::new(load_balancer.clone()))
+            .service(index)
+    })
+    .bind(("127.0.0.1", 8080))?
+    .run()
+    .await
 }
