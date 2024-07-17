@@ -7,10 +7,21 @@ use clap::Parser;
 use log::info;
 use ntex::web;
 use simple_logger;
+use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Clone)]
 struct State {
     name: String,
+    times_called: u64,
+}
+
+impl State {
+    fn new(name: String) -> Self {
+        State {
+            name,
+            times_called: 0,
+        }
+    }
 }
 
 /// Backend server that listens on a given port and returns a hello message
@@ -28,7 +39,7 @@ struct Args {
 
 #[web::get("/")]
 async fn index(
-    state: web::types::State<State>,
+    state: web::types::State<Arc<Mutex<State>>>,
     request: web::HttpRequest,
 ) -> Result<String, web::Error> {
     info!(
@@ -44,9 +55,26 @@ async fn index(
     for (key, value) in request.headers().iter() {
         info!("{}: {}", key, value.to_str().unwrap());
     }
+    let mut state = state.lock().unwrap();
+
     info!("Replied with a hello message from {}", state.name);
+    state.times_called += 1;
+    info!(
+        "Backend server has been called {} times",
+        state.times_called
+    );
 
     Ok(format!("Hello from backend server: {}", state.name))
+}
+
+#[web::get("/health")]
+async fn health_check(request: web::HttpRequest) -> Result<String, web::Error> {
+    info!(
+        "Received health check request from {}",
+        request.connection_info().remote().unwrap()
+    );
+
+    Ok("".to_string())
 }
 
 #[ntex::main]
@@ -54,12 +82,15 @@ async fn main() -> std::io::Result<()> {
     simple_logger::SimpleLogger::new().env().init().unwrap();
 
     let args = Args::parse();
-    let state = State {
-        name: args.name.clone(),
-    };
+    let state = Arc::new(Mutex::new(State::new(args.name.clone())));
 
-    web::HttpServer::new(move || web::App::new().state(state.clone()).service(index))
-        .bind(("127.0.0.1", args.port))?
-        .run()
-        .await
+    web::HttpServer::new(move || {
+        web::App::new()
+            .state(state.clone())
+            .service(index)
+            .service(health_check)
+    })
+    .bind(("127.0.0.1", args.port))?
+    .run()
+    .await
 }
