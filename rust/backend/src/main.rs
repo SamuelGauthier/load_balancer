@@ -9,13 +9,19 @@ use ntex::web;
 use simple_logger;
 use std::sync::{Arc, Mutex};
 
+/// State of the backend server. Contains the name of the server and the number of times it has
+/// been called
 #[derive(Debug, Clone)]
 struct State {
+    /// Name of the backend server
     name: String,
+
+    /// Number of times the backend server has been called, for profiling and debugging purposes
     times_called: u64,
 }
 
 impl State {
+    /// Creates a new state with the given name
     fn new(name: String) -> Self {
         State {
             name,
@@ -37,11 +43,8 @@ struct Args {
     name: String,
 }
 
-#[web::get("/")]
-async fn index(
-    state: web::types::State<Arc<Mutex<State>>>,
-    request: web::HttpRequest,
-) -> Result<String, web::Error> {
+/// Prints information about the incoming request
+fn print_request_info(request: &web::HttpRequest) {
     info!(
         "Received request from {}",
         request.connection_info().remote().unwrap()
@@ -55,6 +58,15 @@ async fn index(
     for (key, value) in request.headers().iter() {
         info!("{}: {}", key, value.to_str().unwrap());
     }
+}
+
+/// Index endpoint that returns a hello message containing the name of the backend server
+#[web::get("/")]
+async fn index(
+    state: web::types::State<Arc<Mutex<State>>>,
+    request: web::HttpRequest,
+) -> Result<String, web::Error> {
+    print_request_info(&request);
     let mut state = state.lock().unwrap();
 
     info!("Replied with a hello message from {}", state.name);
@@ -67,6 +79,7 @@ async fn index(
     Ok(format!("Hello from backend server: {}", state.name))
 }
 
+/// Health check endpoint that returns an empty string
 #[web::get("/health")]
 async fn health_check(request: web::HttpRequest) -> Result<String, web::Error> {
     info!(
