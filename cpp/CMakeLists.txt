@@ -26,6 +26,9 @@ include(cmake/CPM.cmake)
 # PackageProject.cmake will be used to make our target installable
 CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.11.2")
 
+CPMAddPackage("gh:gabime/spdlog@1.14.1")
+CPMAddPackage("gh:CLIUtils/CLI11@2.4.2")
+
 CPMAddPackage(
     NAME drogon
     VERSION 1.9.5
@@ -52,7 +55,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_compile_options(${PROJECT_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
 
 # Link dependencies
-target_link_libraries(${PROJECT_NAME} PRIVATE drogon)
+target_link_libraries(${PROJECT_NAME} PRIVATE drogon spdlog::spdlog CLI11::CLI11)
 
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
