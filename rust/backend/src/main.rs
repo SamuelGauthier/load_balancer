@@ -5,6 +5,7 @@
  */
 use clap::Parser;
 use log::info;
+use ntex::http::Method;
 use ntex::web;
 use simple_logger;
 use std::sync::{Arc, Mutex};
@@ -61,7 +62,6 @@ fn print_request_info(request: &web::HttpRequest) {
 }
 
 /// Index endpoint that returns a hello message containing the name of the backend server
-#[web::get("/")]
 async fn index(
     state: web::types::State<Arc<Mutex<State>>>,
     request: web::HttpRequest,
@@ -100,8 +100,8 @@ async fn main() -> std::io::Result<()> {
     web::HttpServer::new(move || {
         web::App::new()
             .state(state.clone())
-            .service(index)
             .service(health_check)
+            .default_service(web::to(index))
     })
     .bind(("127.0.0.1", args.port))?
     .run()

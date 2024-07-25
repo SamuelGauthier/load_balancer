@@ -238,7 +238,6 @@ async fn print_request_info(request: actix_web::HttpRequest) {
 }
 
 /// Index route of the load balancer. Forwards the request to the next available backend server.
-#[actix_web::get("/")]
 async fn index(
     load_balancer: actix_web::web::Data<Arc<TokioMutex<LoadBalancer>>>,
     request: actix_web::HttpRequest,
@@ -315,7 +314,7 @@ async fn main() -> std::io::Result<()> {
     actix_web::HttpServer::new(move || {
         actix_web::App::new()
             .app_data(actix_web::web::Data::new(load_balancer.clone()))
-            .service(index)
+            .default_service(actix_web::web::to(index))
     })
     .bind(("127.0.0.1", 8080))?
     .run()
