@@ -191,8 +191,8 @@ int main(int argc, char *argv[]) {
   auto load_balancer = std::make_shared<LoadBalancer>(backends, interval_health_check_s);
   load_balancer->start_health_checks();
 
-  drogon::app().registerHandler(
-      "/",
+  drogon::app().registerHandlerViaRegex(
+      "/.*",
       [&](drogon::HttpRequestPtr req,
           std::function<void(const drogon::HttpResponsePtr &)> callback) -> drogon::Task<> {
         spdlog::info("Received request from {}", req->getPeerAddr().toIpPort());
