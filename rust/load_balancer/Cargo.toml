@@ -5,8 +5,10 @@ edition = "2021"
 
 [dependencies]
 actix-web = "4"
+async-trait = "0.1.81"
 clap = { version = "4.5.9", features = ["derive"] }
 log = "0.4.22"
+maxminddb = "0.24.0"
 reqwest = { version = "0.12", features = ["json"] }
 simple_logger = "5.0.0"
-tokio = { version = "1.38.0", features = ["full"] }
+tokio = { version = "1.40.0", features = ["full"] }
