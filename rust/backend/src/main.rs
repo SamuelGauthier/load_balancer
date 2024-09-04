@@ -5,7 +5,7 @@
  */
 use clap::Parser;
 use log::info;
-use ntex::http::Method;
+use ntex::time::sleep;
 use ntex::web;
 use simple_logger;
 use std::sync::{Arc, Mutex};
@@ -19,14 +19,18 @@ struct State {
 
     /// Number of times the backend server has been called, for profiling and debugging purposes
     times_called: u64,
+
+    /// Delay in seconds before responding to a request
+    delay_ms: u64,
 }
 
 impl State {
     /// Creates a new state with the given name
-    fn new(name: String) -> Self {
+    fn new(name: String, delay_ms: u64) -> Self {
         State {
             name,
             times_called: 0,
+            delay_ms,
         }
     }
 }
@@ -42,6 +46,10 @@ struct Args {
     /// Name of the backend server
     #[arg(short, long, default_value = "backend-server")]
     name: String,
+
+    /// Delay in seconds before responding to a request
+    #[arg(short, long, default_value = "0")]
+    delay_ms: u64,
 }
 
 /// Prints information about the incoming request
@@ -69,6 +77,11 @@ async fn index(
     print_request_info(&request);
     let mut state = state.lock().unwrap();
 
+    if state.delay_ms > 0 {
+        info!("Sleeping for {} milliseconds", state.delay_ms);
+        sleep(std::time::Duration::from_millis(state.delay_ms)).await;
+    }
+
     info!("Replied with a hello message from {}", state.name);
     state.times_called += 1;
     info!(
@@ -95,7 +108,7 @@ async fn main() -> std::io::Result<()> {
     simple_logger::SimpleLogger::new().env().init().unwrap();
 
     let args = Args::parse();
-    let state = Arc::new(Mutex::new(State::new(args.name.clone())));
+    let state = Arc::new(Mutex::new(State::new(args.name.clone(), args.delay_ms)));
 
     web::HttpServer::new(move || {
         web::App::new()
