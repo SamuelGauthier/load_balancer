@@ -13,7 +13,7 @@ use tokio::time::{interval, Duration};
 /// Represents a very basic load balancer. Sends the requests to healthy backend servers in a round
 /// robin fashion.
 #[derive(Clone, Debug)]
-pub struct SimpleLoadBalancer {
+pub struct RoundRobinLoadBalancer {
     /// List of backend servers
     backends: Vec<Box<dyn Backend>>,
 
@@ -25,7 +25,7 @@ pub struct SimpleLoadBalancer {
     tried_backends: usize,
 }
 
-impl SimpleLoadBalancer {
+impl RoundRobinLoadBalancer {
     /// Creates a new load balancer with the given list of backend servers to route the requests
     /// to. The health check interval is the time in seconds between each health check sent to the
     /// backends.
@@ -35,7 +35,7 @@ impl SimpleLoadBalancer {
     ) -> Arc<TokioMutex<Box<dyn LoadBalancer>>> {
         // We need to create a mutex from the Tokio lib in order to be able to pass it to the new
         // created task
-        let load_balancer: Box<dyn LoadBalancer> = Box::new(SimpleLoadBalancer {
+        let load_balancer: Box<dyn LoadBalancer> = Box::new(RoundRobinLoadBalancer {
             backends,
             current_backend_index: 0,
             tried_backends: 0,
@@ -61,7 +61,7 @@ impl SimpleLoadBalancer {
 }
 
 #[async_trait]
-impl LoadBalancer for SimpleLoadBalancer {
+impl LoadBalancer for RoundRobinLoadBalancer {
     // Returns the next available backend server to which the request can be sent. If none are
     // available, an error is returned.
     async fn next_available_backend(&mut self) -> Result<Box<dyn Backend>, String> {

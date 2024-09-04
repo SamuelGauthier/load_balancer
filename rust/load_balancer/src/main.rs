@@ -9,16 +9,16 @@ mod health;
 mod internal_error;
 mod least_response_load_balancer;
 mod load_balancer;
+mod round_robin_load_balancer;
 mod simple_backend;
-mod simple_load_balancer;
 
 use crate::load_balancer::LoadBalancer;
 
 use backend::Backend;
 use health::Health;
 use least_response_load_balancer::LeastResponseLoadBalancer;
+use round_robin_load_balancer::RoundRobinLoadBalancer;
 use simple_backend::SimpleBackend;
-use simple_load_balancer::SimpleLoadBalancer;
 
 use actix_web;
 use actix_web::error::InternalError;
@@ -102,7 +102,7 @@ async fn main() -> std::io::Result<()> {
     let load_balancer: Arc<TokioMutex<Box<dyn LoadBalancer>>> = if args.dynamic {
         LeastResponseLoadBalancer::new(backends, args.interval_health_check)
     } else {
-        SimpleLoadBalancer::new(backends, args.interval_health_check)
+        RoundRobinLoadBalancer::new(backends, args.interval_health_check)
     };
 
     actix_web::HttpServer::new(move || {
