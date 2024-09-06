@@ -12,6 +12,25 @@ project(
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    message(STATUS "Using '${CMAKE_CXX_COMPILER_ID}' compiler")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
+    -fexperimental-library\
+    ")
+    link_directories("${CMAKE_PREFIX_PATH}/lib/c++")
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message(STATUS "Using '${CMAKE_CXX_COMPILER_ID}' compiler")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
+    -fconcepts\
+    ")
+
+    link_directories("${CMAKE_PREFIX_PATH}/lib/gcc/current")
+endif()
+
 
 # ---- Include guards ----
 
@@ -59,7 +78,10 @@ set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_compile_options(${PROJECT_NAME} PUBLIC "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive->")
 
 # Link dependencies
-target_link_libraries(${PROJECT_NAME} PRIVATE drogon spdlog::spdlog CLI11::CLI11)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    drogon
+    spdlog::spdlog
+    CLI11::CLI11)
 
 target_include_directories(
   ${PROJECT_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>

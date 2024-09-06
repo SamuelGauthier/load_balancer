@@ -13,4 +13,5 @@
   NamespaceIndentation: All
   BreakBeforeBinaryOperators: All
   BreakBeforeTernaryOperators: 'true'
+  NamespaceIndentation: None
 ...
