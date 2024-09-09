@@ -24,13 +24,6 @@ Setup
 
 #. Generate the build files:
 
-.. note::
-
-   This project uses C++20 features, in particular jthreads that are not yet
-   supported by the default compiler on macOS. Therefore, we need use LLVM.
-   See :code:`std::stop_token` and :code:`std::jthread entry` at
-   `cppreference.com <https://en.cppreference.com/w/cpp/compiler_support/20>`_
-
 .. code-block:: bash
 
    cmake -S . -B build/ -G Ninja \

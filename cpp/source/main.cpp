@@ -26,12 +26,12 @@ int main(int argc, char *argv[]) {
   CLI11_PARSE(app, argc, argv);
 
   drogon::app().addListener("0.0.0.0", 8080);
-  drogon::app().setThreadNum(8);
+  drogon::app().setThreadNum(1);
 
   std::vector<std::shared_ptr<Backend>> backends{};
   std::transform(backend_addresses.begin(), backend_addresses.end(), std::back_inserter(backends),
                  [](const std::string &address) {
-                   return std::make_shared<SimpleBackend>(address, 1, Health::Healthy);
+                   return std::make_shared<SimpleBackend>(address, Health::Healthy);
                  });
 
   auto load_balancer = std::make_shared<RoundRobinLoadBalancer>(backends, interval_health_check_s);
@@ -48,8 +48,7 @@ int main(int argc, char *argv[]) {
         spdlog::info("Accept: {}", req->getHeader("accept"));
 
         try {
-          auto backend = load_balancer->next_available_backend();
-          auto response = co_await backend->send_request();
+          auto response = co_await load_balancer->send_request(req);
           callback(response);
         } catch (std::runtime_error &e) {
           auto response = drogon::HttpResponse::newHttpResponse();
@@ -62,5 +61,6 @@ int main(int argc, char *argv[]) {
 
   // Run HTTP framework,the method will block in the internal event loop
   drogon::app().run();
+  load_balancer->stop_health_checks();
   return 0;
 }

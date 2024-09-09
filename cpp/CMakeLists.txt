@@ -16,18 +16,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     message(STATUS "Using '${CMAKE_CXX_COMPILER_ID}' compiler")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
-    -fexperimental-library\
-    ")
     link_directories("${CMAKE_PREFIX_PATH}/lib/c++")
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     message(STATUS "Using '${CMAKE_CXX_COMPILER_ID}' compiler")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
-    -fconcepts\
-    ")
-
     link_directories("${CMAKE_PREFIX_PATH}/lib/gcc/current")
 endif()
 
