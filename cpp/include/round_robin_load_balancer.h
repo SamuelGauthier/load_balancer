@@ -17,11 +17,10 @@ public:
                          int health_check_interval_s);
 
   std::shared_ptr<Backend> next_available_backend();
-
   drogon::Task<void> check_backend_healths();
-  void start_health_checks();
-  void stop_health_checks();
 
+  void start_health_checks() override;
+  void stop_health_checks() override;
   drogon::Task<drogon::HttpResponsePtr> send_request(drogon::HttpRequestPtr request) override;
 
 private:

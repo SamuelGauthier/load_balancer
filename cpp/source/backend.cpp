@@ -14,12 +14,17 @@ drogon::Task<void> SimpleBackend::check_health() {
   auto start = std::chrono::high_resolution_clock::now();
   auto request = drogon::HttpRequest::newHttpRequest();
   request->setPath("/health");
-  auto response = co_await client->sendRequestCoro(request);
-  if (response->getStatusCode() < drogon::HttpStatusCode::k200OK
-      || response->getStatusCode() > drogon::HttpStatusCode::k206PartialContent) {
-    spdlog::error("Health check of {} failed", this->backend_address);
+  try {
+    auto response = co_await client->sendRequestCoro(request);
+    if (response->getStatusCode() < drogon::HttpStatusCode::k200OK
+        || response->getStatusCode() > drogon::HttpStatusCode::k206PartialContent) {
+      spdlog::error("Health check of {} failed", this->backend_address);
+    }
+    this->update_health_from_status_code(response);
+  } catch (const drogon::HttpException& e) {
+    spdlog::error("Health check of {} failed: {}", this->backend_address, e.what());
+    this->backend_health = Health::Unhealthy;
   }
-  this->update_health_from_status_code(response);
 
   auto end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
@@ -36,14 +41,20 @@ drogon::Task<drogon::HttpResponsePtr> SimpleBackend::send_request(drogon::HttpRe
       drogon::HttpStatusCode::k503ServiceUnavailable, drogon::ContentType::CT_TEXT_HTML);
 
   auto start = std::chrono::high_resolution_clock::now();
-  auto response = co_await client->sendRequestCoro(request);
-  if (response->getStatusCode() >= drogon::HttpStatusCode::k200OK
-      && response->getStatusCode() <= drogon::HttpStatusCode::k206PartialContent) {
-    http_response = response;
-  } else {
-    spdlog::error("Request to {} failed", this->backend_address);
+
+  try {
+    auto response = co_await client->sendRequestCoro(request);
+    if (response->getStatusCode() >= drogon::HttpStatusCode::k200OK
+        && response->getStatusCode() <= drogon::HttpStatusCode::k206PartialContent) {
+      http_response = response;
+    } else {
+      spdlog::error("Request to {} failed", this->backend_address);
+    }
+    this->update_health_from_status_code(response);
+  } catch (const drogon::HttpException& e) {
+    spdlog::error("Request to {} failed: {}", this->backend_address, e.what());
+    this->backend_health = Health::Unhealthy;
   }
-  this->update_health_from_status_code(response);
 
   auto end = std::chrono::high_resolution_clock::now();
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);

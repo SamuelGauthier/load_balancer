@@ -1,6 +1,7 @@
 #include <backend.h>
 #include <drogon/drogon.h>
 #include <health.h>
+#include <least_response_load_balancer.h>
 #include <round_robin_load_balancer.h>
 #include <spdlog/spdlog.h>
 
@@ -23,10 +24,13 @@ int main(int argc, char *argv[]) {
   int interval_health_check_s{10};
   app.add_option("-c,--health-check", interval_health_check_s,
                  "Time interval in seconds between health checks, defaults to 10s");
+  bool dynamic_algorithm{false};
+  app.add_option("-d,--dynamic-algo", dynamic_algorithm,
+                 "Use dynamic algorithm (least response) to select the backend server");
   CLI11_PARSE(app, argc, argv);
 
   drogon::app().addListener("0.0.0.0", 8080);
-  drogon::app().setThreadNum(1);
+  drogon::app().setThreadNum(4);
 
   std::vector<std::shared_ptr<Backend>> backends{};
   std::transform(backend_addresses.begin(), backend_addresses.end(), std::back_inserter(backends),
@@ -34,7 +38,12 @@ int main(int argc, char *argv[]) {
                    return std::make_shared<SimpleBackend>(address, Health::Healthy);
                  });
 
-  auto load_balancer = std::make_shared<RoundRobinLoadBalancer>(backends, interval_health_check_s);
+  std::shared_ptr<LoadBalancer> load_balancer;
+  if (dynamic_algorithm) {
+    load_balancer = std::make_shared<LeastResponseLoadBalancer>(backends, interval_health_check_s);
+  } else {
+    load_balancer = std::make_shared<RoundRobinLoadBalancer>(backends, interval_health_check_s);
+  }
   load_balancer->start_health_checks();
 
   drogon::app().registerHandlerViaRegex(
