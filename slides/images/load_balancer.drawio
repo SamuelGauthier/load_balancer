@@ -1,0 +1,85 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.7.8 Chrome/128.0.6613.36 Electron/32.0.1 Safari/537.36" version="24.7.8">
+  <diagram name="Page-1" id="Ss7qsQvJsD19GSIzz1tL">
+    <mxGraphModel dx="2021" dy="1214" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-1" value="Load Balancer" style="rounded=1;whiteSpace=wrap;html=1;fontFamily=Helvetica Neue;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="250" y="331.2" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-4" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" vertex="1" parent="1">
+          <mxGeometry x="490" y="188.2" width="50.49" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-23" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="bwSfO-icqOKer1Ui0_Uj-5" target="bwSfO-icqOKer1Ui0_Uj-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-5" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Personal_Computer_with_Server.svg;" vertex="1" parent="1">
+          <mxGeometry x="70" y="236" width="62.400000000000006" height="62.400000000000006" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="bwSfO-icqOKer1Ui0_Uj-6" target="bwSfO-icqOKer1Ui0_Uj-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-6" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Personal_Computer_with_Server.svg;" vertex="1" parent="1">
+          <mxGeometry x="70" y="330" width="62.400000000000006" height="62.400000000000006" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-25" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="bwSfO-icqOKer1Ui0_Uj-7" target="bwSfO-icqOKer1Ui0_Uj-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-7" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Personal_Computer_with_Server.svg;" vertex="1" parent="1">
+          <mxGeometry x="70" y="430" width="62.400000000000006" height="62.400000000000006" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-8" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" vertex="1" parent="1">
+          <mxGeometry x="490" y="261.4" width="50.49" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-9" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" vertex="1" parent="1">
+          <mxGeometry x="490" y="334.2" width="50.49" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-10" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" vertex="1" parent="1">
+          <mxGeometry x="490" y="404.2" width="50.49" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-11" value="" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Server_Desktop.svg;" vertex="1" parent="1">
+          <mxGeometry x="490" y="474.2" width="50.49" height="64" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-12" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.02;entryY=0.544;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="bwSfO-icqOKer1Ui0_Uj-1" target="bwSfO-icqOKer1Ui0_Uj-4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-13" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.478;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="bwSfO-icqOKer1Ui0_Uj-1" target="bwSfO-icqOKer1Ui0_Uj-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.02;entryY=0.434;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="bwSfO-icqOKer1Ui0_Uj-1" target="bwSfO-icqOKer1Ui0_Uj-9">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-15" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.466;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="bwSfO-icqOKer1Ui0_Uj-1" target="bwSfO-icqOKer1Ui0_Uj-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-16" style="rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.528;entryDx=0;entryDy=0;entryPerimeter=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="bwSfO-icqOKer1Ui0_Uj-1" target="bwSfO-icqOKer1Ui0_Uj-11">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-18" value="Backend 1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica Neue;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="550" y="205.2" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-19" value="Backend 2" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica Neue;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="550" y="278.4" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-20" value="Backend 3" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica Neue;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="550" y="346.2" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-21" value="Backend 4" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica Neue;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="550" y="421.2" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-22" value="Backend 5" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica Neue;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="550" y="491.2" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-26" value="Client 1" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica Neue;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="-30" y="252.2" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-27" value="Client 2" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica Neue;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="-30" y="346.2" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="bwSfO-icqOKer1Ui0_Uj-28" value="Client 3" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Helvetica Neue;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="-30" y="446.2" width="80" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

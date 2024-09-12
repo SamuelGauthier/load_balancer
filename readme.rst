@@ -8,4 +8,5 @@ based on the coding challenge `Build Your Own Load Balancer
 
 You will find the C++ implementation under the :code:`cpp` directory (`cpp
 <./cpp/>`_) and the rust one under the :code:`rust` directory (`rust
-<./rust/>`_).
+<./rust/>`_). Slides for the presentation can be found under the :code:`slides`
+together with some small code examples (`slides <./slides/>`_).
