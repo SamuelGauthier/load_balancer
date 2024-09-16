@@ -51,6 +51,7 @@ impl Backend for SimpleBackend {
 
         // Sends a health check
         let health_check_address = self.address.clone() + "health";
+        debug!("Sending health check to {}", health_check_address);
         let client = Client::new();
         let response = client.get(&health_check_address).send().await;
 

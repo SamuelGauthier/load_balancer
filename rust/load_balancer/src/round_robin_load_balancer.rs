@@ -16,10 +16,6 @@ pub struct RoundRobinLoadBalancer {
 
     /// Index of the current backend server to which the next request will be sent.
     current_backend_index: TokioRwLock<usize>,
-
-    /// Number of backend servers that have been tried. If all backend servers have been tried, the
-    /// load balancer will return an error.
-    tried_backends: TokioRwLock<usize>,
 }
 
 impl RoundRobinLoadBalancer {
@@ -30,7 +26,6 @@ impl RoundRobinLoadBalancer {
         Self {
             backends,
             current_backend_index: 0.into(),
-            tried_backends: 0.into(),
         }
     }
 }
@@ -40,46 +35,40 @@ impl LoadBalancer for RoundRobinLoadBalancer {
     /// Returns the next available backend server to which the request can be sent. If none are
     /// available, an error is returned.
     async fn next_available_backend(&self) -> Result<Box<dyn Backend>, String> {
-        // We have tried all the backend servers, none are available
-        let r_tried_backends = self.tried_backends.read().await;
-        if *r_tried_backends == self.backends.len() {
-            return Err("No backend server available".to_string());
-        }
-        drop(r_tried_backends);
-
         debug!("trying to acquire current_backend_index write lock");
         let mut current_backend_index = self.current_backend_index.write().await;
         debug!("acquired current_backend_index write lock");
 
-        let backend_index = *current_backend_index;
-        // We increment the index to point to the next backend server
+        let mut tried_backends = 0;
+
+        let mut backend_index = *current_backend_index;
         *current_backend_index = (*current_backend_index + 1) % self.backends.len();
 
-        // We check the health of the backend server
         self.backends[backend_index].check_health().await;
-        let backend_health = self.backends[backend_index].health().await;
+        let mut backend_health = self.backends[backend_index].health().await;
 
-        debug!("trying to acquire tried_backends write lock");
-        let mut w_tried_backends = self.tried_backends.write().await;
-        debug!("acquired tried_backends write lock");
+        while tried_backends < self.backends.len() {
+            if backend_health == Health::Healthy {
+                debug!("selected healthy backend {:?}", backend_index);
+                return Ok(self.backends[backend_index].clone());
+            }
 
-        if backend_health == Health::Healthy {
-            debug!("selected healthy backend {:?}", backend_index);
-            // It is healthy, we can return it and reset the number of tried backends
-            *w_tried_backends = 0;
-            return Ok(self.backends[backend_index].clone());
+            backend_index = *current_backend_index;
+            *current_backend_index = (*current_backend_index + 1) % self.backends.len();
+
+            self.backends[backend_index].check_health().await;
+            backend_health = self.backends[backend_index].health().await;
+
+            tried_backends += 1;
         }
 
-        // It is unhealthy, we try the next one
-        *w_tried_backends += 1;
-        // As this function is recursive, we need to watch out for stack overflow, so we use the
-        // heap and guarantee that the value remains at the same place
-        Box::pin(self.next_available_backend()).await
+        return Err("No backend server available".to_string());
     }
 
     /// Sends a request to the next available backend server. Returns an error if no backend server
     /// is reachable.
     async fn send_request(&self) -> Result<String, InternalError> {
+        debug!("trying to get next available backend");
         let backend = self.next_available_backend().await;
         match backend {
             Ok(backend) => {

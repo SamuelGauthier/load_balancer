@@ -144,9 +144,16 @@ impl LoadBalancer for LeastResponseLoadBalancer {
         let healthy_backends_count = w_healthy_backends.len();
         let unhealthy_backends_count = w_unhealthy_backends.len();
 
-        let best_backend = w_healthy_backends.peek().unwrap();
-        let best_backend_priority = best_backend.priority;
-        let best_backend_address: String = best_backend.element.address().into();
+        let best_backend = w_healthy_backends.peek();
+
+        let best_backend_priority: Option<f32> = match best_backend {
+            Some(MinHeapItem { priority, .. }) => Some(*priority),
+            None => None,
+        };
+        let best_backend_address: Option<String> = match best_backend {
+            Some(MinHeapItem { element, .. }) => Some(element.address().to_string()),
+            None => None,
+        };
 
         drop(w_healthy_backends);
         drop(w_unhealthy_backends);
@@ -155,10 +162,15 @@ impl LoadBalancer for LeastResponseLoadBalancer {
         let end_time = std::time::Instant::now();
         let elapsed_time = end_time.duration_since(start_time).as_millis();
         info!("checking all backends health took {}ms", elapsed_time);
-        info!(
-            "Best backend: {}ms, {}",
-            best_backend_priority, best_backend_address
-        );
+
+        match (best_backend_priority, best_backend_address) {
+            (Some(priority), Some(address)) => {
+                info!("Best backend: {}ms, {}", priority, address);
+            }
+            _ => {
+                error!("No backend available");
+            }
+        }
         info!(
             "Healthy backends: {}, Unhealthy backends: {}",
             healthy_backends_count, unhealthy_backends_count
