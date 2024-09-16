@@ -25,8 +25,8 @@ int main(int argc, char *argv[]) {
   app.add_option("-c,--health-check", interval_health_check_s,
                  "Time interval in seconds between health checks, defaults to 10s");
   bool dynamic_algorithm{false};
-  app.add_option("-d,--dynamic-algo", dynamic_algorithm,
-                 "Use dynamic algorithm (least response) to select the backend server");
+  app.add_flag("-d,--dynamic-algo", dynamic_algorithm,
+               "Use dynamic algorithm (least response) to select the backend server");
   CLI11_PARSE(app, argc, argv);
 
   drogon::app().addListener("0.0.0.0", 8080);
@@ -64,7 +64,7 @@ int main(int argc, char *argv[]) {
           response->setStatusCode(drogon::HttpStatusCode::k503ServiceUnavailable);
           response->setBody("No healthy backends available");
           callback(response);
-          co_return;
+          /* co_return; */
         }
       });
 

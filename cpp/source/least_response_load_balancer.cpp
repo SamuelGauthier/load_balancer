@@ -1,4 +1,5 @@
 #include <least_response_load_balancer.h>
+#include <spdlog/spdlog.h>
 
 namespace load_balancer {
 

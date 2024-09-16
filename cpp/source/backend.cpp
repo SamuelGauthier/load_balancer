@@ -1,4 +1,5 @@
 #include <backend.h>
+#include <spdlog/spdlog.h>
 
 namespace load_balancer {
 

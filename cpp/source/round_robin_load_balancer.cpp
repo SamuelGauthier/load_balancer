@@ -1,4 +1,5 @@
 #include <round_robin_load_balancer.h>
+#include <spdlog/spdlog.h>
 
 namespace load_balancer {
 
@@ -29,6 +30,7 @@ std::shared_ptr<Backend> RoundRobinLoadBalancer::next_available_backend() {
     tried_backends++;
     if (tried_backends >= (int)this->backends.size()) {
       spdlog::error("No healthy backends out of {} available", this->backends.size());
+      this->backend_semaphore.release();
       throw std::runtime_error("No healthy backends available");
     }
   }
@@ -66,7 +68,11 @@ void RoundRobinLoadBalancer::start_health_checks() {
 
   drogon::async_run([this]() -> drogon::Task<void> {
     while (this->health_check_thread_running) {
-      co_await this->check_backend_healths();
+      try {
+        co_await this->check_backend_healths();
+      } catch (const std::exception &e) {
+        spdlog::error("Error checking backend healths: {}", e.what());
+      }
       co_await drogon::sleepCoro(trantor::EventLoop::getEventLoopOfCurrentThread(),
                                  std::chrono::seconds(this->health_check_interval_s));
     }
@@ -82,9 +88,13 @@ void RoundRobinLoadBalancer::stop_health_checks() {
 
 drogon::Task<drogon::HttpResponsePtr> RoundRobinLoadBalancer::send_request(
     drogon::HttpRequestPtr request) {
+  spdlog::info("Trying to get next available backend");
   auto backend = this->next_available_backend();
+  spdlog::info("Got next available backend");
 
+  spdlog::info("Sending request to backend at {}", backend->address());
   auto response = co_await backend->send_request(request);
+  spdlog::info("Received response from backend at {}", backend->address());
   co_return response;
 }
 

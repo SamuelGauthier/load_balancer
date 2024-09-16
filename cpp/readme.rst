@@ -84,3 +84,33 @@ Or make a bulk one:
 .. code-block:: bash
 
     curl --parallel --parallel-immediate --parallel-max 3 --config urls.txt
+
+Tests
+=====
+
+After building the project, you can run the end-to-end tests:
+
+.. code-block:: bash
+
+    cd test/end_to_end
+    ./test_simple_lb.sh
+    ./test_dynamic_lb.sh
+
+
+To build the unit tests:
+
+.. code-block:: bash
+
+    cmake -S test -B build/test -G Ninja \
+       -DCMAKE_C_FLAGS="-isysroot /opt/homebrew/opt/llvm/include" \
+       -DCMAKE_CXX_FLAGS="-isysroot /opt/homebrew/opt/llvm/include" \
+       -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang \
+       -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ \
+       -DCMAKE_PREFIX_PATH="$(brew --prefix llvm)"
+    cmake --build build/test -j $(nproc)
+
+And run them:
+
+.. code-block:: bash
+
+    ./build/test/lb_test
