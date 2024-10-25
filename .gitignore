@@ -105,3 +105,7 @@ tags
 [._]*.un~
 
 # End of https://www.toptal.com/developers/gitignore/api/rust,c++,vim,macos
+
+# This folder may be ignored by another .gitignore file
+!bin/
+!bin/*.rs
